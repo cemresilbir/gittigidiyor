@@ -20,7 +20,7 @@ import static org.openqa.selenium.By.*;
 public class TestCase {
     protected WebDriver driver;
     public static String WebsiteUrl = "https://www.gittigidiyor.com/";
-    public static String SecondPage = "https://www.gittigidiyor.com/arama/?k=bilgisayar&sf=2";
+    public static String SecondPage = "https://www.gittigidiyor.com/arama/?k=samsung&sf=2";
 
     @Before
 
@@ -46,7 +46,7 @@ public class TestCase {
 @Test
 
 public void login() throws InterruptedException {
-/*
+
     // Siteye gidilir ve üye girişi yapılır.
     driver.get(WebsiteUrl);
     WebElement ele = driver.findElement(xpath("//*[@id=\"main-header\"]/div[3]/div/div/div[1]/div[3]/div/div[1]/div/div[1]/div"));
@@ -61,54 +61,56 @@ public void login() throws InterruptedException {
     driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
     driver.findElement(xpath("//*[@id=\"gg-login-enter\"]")).click();
 
-    // Güvenlik sebebiyle otomasyon ile giriş yapamıyorum, giriş yaptığımı varsayarak ilerliyorum.
-*/
-    driver.get(WebsiteUrl);
+   // driver.get(WebsiteUrl);
     Assert.assertEquals("GittiGidiyor - Türkiye'nin Öncü Alışveriş Sitesi", driver.getTitle());
     System.out.println("Başarılı şekilde login olundu");
 
     sleep(100);
 
-    // Bilgisayar ürünü arama kutucuğuna yazılır ve searche tıklanır.
+    // Samsung ürün arama kutucuğuna yazılır ve searche tıklanır.
     driver.findElement(xpath("//*[contains(@class,'sc-4995aq-4 dNPmGY')]")).click();
-    driver.findElement(xpath("/html//header[@id='main-header']/div/div/div/div//form[@action='https://www.gittigidiyor.com/arama']//input[@name='k']")).sendKeys("bilgisayar");
+    driver.findElement(xpath("/html//header[@id='main-header']/div/div/div/div//form[@action='https://www.gittigidiyor.com/arama']//input[@name='k']")).sendKeys("samsung");
     driver.findElement(xpath("/html//header[@id='main-header']/div/div/div/div/div/form[@action='https://www.gittigidiyor.com/arama']//button[@type='submit']/span[.='BUL']")).click();
     sleep(1000);
+
+    // Samsung sonuçların bulunduğu doğrulanır.
+    String searchResult = driver.findElement(className("search-result-keyword")).getText();
+    Assert.assertEquals("samsung",searchResult);
+    System.out.println("Samsung aramaları bulundu.");
 
     // Listeleme sayfasında 2. sayfaya gidilir.
 
     driver.get(SecondPage);
 
-    // Random bir ürün seçilir ve sepete eklenir.
+    // Random bir ürün seçilir ve favorilere eklenir.
 
-    driver.findElement(xpath("//*[@id=\"item-info-block-695373966\"]")).click();
-    String productPrice =driver.findElement(id("sp-price-lowPrice")).getText();
-    System.out.println(productPrice);
+    driver.findElement(xpath("//*[@id=\"product_id_645276324\"]")).click();
+    String ProductTittle = driver.findElement(id("sp-title")).getText();
     JavascriptExecutor js = (JavascriptExecutor)driver;
     js.executeScript("window.scrollBy(0,600)");
-    driver.findElement(xpath("//*[@id=\"add-to-basket\"]")).click();
+    driver.findElement(xpath("//*[@id=\"spp-watch-product\"]/p[1]/span")).click();
     sleep(1000);
 
-    // Sepete gidilir ve sepette bulunan ürünün fiyatı doğrulanır.
-    WebElement ele = driver.findElement(xpath("//*[@id=\"header_wrapper\"]/div[4]/div[3]/a"));
-    Actions action = new Actions(driver);
-    action.moveToElement(ele).perform();
-    driver.findElement(xpath("//*[@id=\"header_wrapper\"]/div[4]/div[3]/div/div/div/div[2]/div[4]/div[1]/a")).click();
-    String TotalPrice = driver.findElement(className("total-price")).getText();
-    System.out.println(TotalPrice);
-    Assert.assertEquals(productPrice,TotalPrice);
-    System.out.println("Prices are equal.");
+    // Favoriler alanına gidilir ve ürün doğrulanır.
+    WebElement tag = driver.findElement(xpath("//*[@id=\"header_wrapper\"]/div[4]/div[1]/a"));
+    Actions SecondAction = new Actions(driver);
+    SecondAction.moveToElement(tag).perform();
+    driver.findElement(xpath("//*[@id=\"header_wrapper\"]/div[4]/div[1]/div/div/div/div/ul/li[3]/a")).click();
+    String FavProductName = driver.findElement(xpath("/html/body/div[2]/div[1]/div[4]/div[2]/form/div[2]/table/tbody/tr/td[2]/div/div[1]/a/div/div/h2")).getText();
+    System.out.println(FavProductName);
+    Assert.assertEquals(ProductTittle,FavProductName);
+    System.out.println("Ürünler eşleşiyor.");
 
-    // Sepette bulunan ürün miktarı arttırılır.
-    //Select selectelement = new Select(driver.findElement(xpath("//*[@id=\"cart-item-478048883\"]/div[1]/div[4]/div/div[2]/select")));
+    // Ürün favorilerden çıkarılır.
+    driver.findElement(id("watch-products-item-checkbox-0")).click();
+    driver.findElement(xpath("/html/body/div[2]/div[1]/div[4]/div[2]/form/div[1]/button")).click();
 
-    // Ürün sepetten silinir ve boş sepet doğrulanır.
-    driver.findElement(xpath("/html/body/div[1]/div[2]/div/div[1]/form/div/div[2]/div[2]/div/div/div[6]/div[2]/div[2]/div[1]/div[3]/div/div[2]/div/a")).click();
-    String FinalPrice = driver.findElement(className("new-price")).getText();
-    Assert.assertNotEquals(TotalPrice , FinalPrice);
-    System.out.println("The product has been deleted from the cart.");
-
+   String DeleteFav = driver.findElement(xpath("/html/body/div[2]/div[1]/div[4]/div[1]")).getText();
+    Assert.assertEquals("Tebrikler. Ürünler izlediklerim listesinden çıkartıldı.",DeleteFav);
+    System.out.println("Ürünler Favorilerim listesinden çıkartıldı.");
 }
+
+
 }
 
 
